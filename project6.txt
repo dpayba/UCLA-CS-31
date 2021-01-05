@@ -1,0 +1,201 @@
+1a.
+To begin, initializing arr[1] was done so incorrectly. This was fixed by putting ptr+1 into parentheses. The next issue in the program comes in the loop and printing of elements. I fixed this by setting ptr to arr, and looping until it hits index 3 of the array (arr+3). 
+
+int main() {
+    int arr[3] = { 5, 10, 15 };
+    int* ptr = arr;
+
+    *ptr = 30;          // set arr[0] to 30
+    *(ptr + 1) = 20;      // set arr[1] to 20
+    ptr += 2;
+    ptr[0] = 10;        // set arr[2] to 10
+
+    ptr = arr;
+    while (ptr < arr+3) {
+        cout << *ptr << endl;    // print values
+        ptr++;
+    }
+}
+
+1b.
+The problem with the function was that int* pToMax creates a copy of ptr, which means it actually has no effect on the actual ptr value, although it should. To fix this, we can set pToMax to a reference with the & operator, with the new parameter being int*& pToMax.
+
+void findMax(int arr[], int n, int*& pToMax)
+   {
+       if (n <= 0)
+           return;      // no items, no maximum!
+   
+       pToMax = arr;
+
+       for (int i = 1; i < n; i++)
+       {
+           if (arr[i] > *pToMax)
+                pToMax = arr + i;
+       }
+   }
+
+   int main()
+   {
+       int nums[4] = { 5, 3, 15, 6 };
+       int* ptr;
+
+       findMax(nums, 4, ptr);
+       cout << "The maximum is at address " << ptr << endl;
+       cout << "It's at position " << ptr - nums << endl;
+       cout << "Its value is " << *ptr << endl;
+   }
+
+1c. 
+The main function had an issue because when calling functions, it cannot follow an uninitialized pointer. By declaring an int* ptr but not initializing it, it causes the program to crash. This can be solved by initializing ptr to a new int, temp, in which the program will then work correctly.
+
+void computeCube(int n, int* ncubed)
+    {
+        *ncubed = n * n * n;
+    }
+
+int main()
+    {
+        int temp = 0;
+        int* ptr = &temp;
+        computeCube(5, ptr);
+        cout << "Five cubed is " << *ptr << endl;
+    }
+
+1d.
+The problem when implementing strequal was that it continued to loop past the null byte in each Cstring. Because of this, even if the two C Strings were equal, it would return false because it continues to loop past the words inputted. To fix this, we create a variable i that increments after it checks each character. If there is an index where the characters aren't equal, it returns false. If the loop successfully executes, it returns true.
+
+// return true if two C strings are equal
+  bool strequal(const char str1[], const char str2[])
+  {
+      int i = 0;
+      while (str1[i] != '\0'  &&  str2[i] != '\0')
+      {
+          if (str1[i] != str2[i])   // compare corresponding characters
+               return false;
+          i++;            // advance to the next character
+      }
+      return true;   // both ended at same time?
+  }
+
+  int main()
+  {
+      char a[15] = "Shen";
+      char b[15] = "Shi";
+
+      if (strequal(a,b))
+          cout << "They're the same person!\n";
+  }
+
+1e.
+The problem within the program is in the getPtrToArray function. In the function, it initializes an array of 100 elements, although it is defined within the function, making it a local variable. Because of this, when the array is returned, it leads to undefined behavior, as the memory of these variables fail to exist when the call of the function ends.
+
+
+2a. double* cat;
+2b. double mouse[5];
+2c. cat = &mouse[4];
+2d. *cat = 25;
+2e. *(mouse+3) = 54;
+2f. cat = cat-3;
+2g. cat[1] = 42;
+2h. cat[0] = 27;
+2i. bool b = *cat == *(cat+1);
+2j. bool d = cat == mouse;
+
+
+3a.
+double mean(const double* scores, int numScores)
+{
+    double tot = 0;
+    int i = 0;
+    while (i < numScores)
+    {
+        tot += *(scores + i);
+        i++;
+    }
+    return tot/numScores;
+}
+
+3b.
+const char* findTheChar(const char str[], char chr) {
+    for (int k = 0; *(str+k) != 0; k++)
+        if (*(str+k) == chr)
+            return str + k;
+
+    return NULL;
+}
+
+3c.
+const char* findTheChar(const char* str, char chr) {
+    int i = 0;
+    while(*str != 0) {
+        if (*str == chr)
+            return str;
+        i++;
+    }
+    return NULL;
+}
+
+
+4. 
+The program prints:
+3 - This is a result of &array[5] - ptr, which is also &array[2]. 
+4 - To begin, pointer of array[0] goes to maxwell, returning the int with a larger value. &array[0] returned, then set to -1 in main function. Then array[0] is passed to swap1, though has no effect since it only swaps copies. After that, it goes to swap2, where it swaps the int with &array[2] to 4.
+79 - *(array+1) sets array[1] to 79. Then it's passed to swap1, but no change because only the copies are swapped, not the actual value.
+-1 - swap2 switches the elements array[0] and array[2]. After going through the maxwell function, array[0] was set to -1. Swap2 switches these values, which is why array[2] is now -1 and array[0] was 4.
+22 - No change, not involved in any functions or assignments
+19 - No change, not involved in any functions or assignments
+
+#include <iostream>
+using namespace std;
+
+int* maxwell(int* a, int* b) {
+    if (*a > *b)
+        return a;
+    else
+        return b;
+}
+
+void swap1(int* a, int* b) {
+    int* temp = a;
+    a = b;
+    b = temp;
+}
+
+void swap2(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int main() {
+    int array[6] = { 5, 3, 4, 17, 22, 19 };
+
+    int* ptr = maxwell(array, &array[2]);
+    *ptr = -1;
+    ptr += 2;
+    ptr[1] = 9;
+    *(array+1) = 79;
+
+    cout << &array[5] - ptr << endl;
+
+    swap1(&array[0], &array[1]);
+    swap2(array, &array[2]);
+
+    for (int i = 0; i < 6; i++)
+        cout << array[i] << endl;
+}
+
+
+5.
+void removeS(char* c) {
+    char* temp = c;
+    
+    while(*c != '\0') {
+        if (*c != 's' && *c != 'S') {
+            *temp = *c;
+            temp++;
+        }
+        c++;
+    }
+    *temp = '\0';
+}
